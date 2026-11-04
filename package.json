@@ -1,0 +1,14 @@
+{
+  "name": "darkmode-googledocs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dark mode Chrome extension for Google Docs",
+  "scripts": {
+    "test": "node tests/suite.js",
+    "postinstall": "playwright install chromium"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1",
+    "pngjs": "^7.0.0"
+  }
+}

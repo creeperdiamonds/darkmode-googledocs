@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Dark Mode for Google Docs",
+  "short_name": "Docs Dark Mode",
+  "version": "1.0.0",
+  "description": "Real dark mode for Google Docs. Recolors the page and text for dark backgrounds while images and your document stay untouched.",
+  "minimum_chrome_version": "111",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "Dark Mode for Google Docs",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://docs.google.com/document/d/*",
+        "https://docs.google.com/document/u/*/d/*"
+      ],
+      "js": [
+        "src/canvas-patch.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false,
+      "exclude_matches": [
+        "https://docs.google.com/document/d/e/*",
+        "https://docs.google.com/document/u/*/d/e/*",
+        "https://docs.google.com/document/*/mobilebasic*"
+      ]
+    },
+    {
+      "matches": [
+        "https://docs.google.com/document/d/*",
+        "https://docs.google.com/document/u/*/d/*"
+      ],
+      "js": [
+        "src/content.js"
+      ],
+      "css": [
+        "src/dark.css"
+      ],
+      "run_at": "document_start",
+      "all_frames": false,
+      "exclude_matches": [
+        "https://docs.google.com/document/d/e/*",
+        "https://docs.google.com/document/u/*/d/e/*",
+        "https://docs.google.com/document/*/mobilebasic*"
+      ]
+    }
+  ]
+}

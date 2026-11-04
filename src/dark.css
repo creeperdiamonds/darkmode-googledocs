@@ -1,0 +1,122 @@
+/*
+ * Dark Mode for Google Docs - interface theme.
+ * The document itself (canvas) is recolored by canvas-patch.js.
+ * Everything here is scoped to html.gdm-dark so the toggle turns it all off.
+ *
+ * Interface panels use an invert + hue-rotate filter: light gray becomes dark
+ * gray while blues stay blue, and it keeps working when Google renames the
+ * hundreds of inner classes. Real images, avatars and color swatches inside
+ * those panels are flipped back so they show their true colors.
+ */
+
+html.gdm-dark {
+  color-scheme: dark;
+  --gdm-bg: #181818;
+  --gdm-filter: invert(0.9) hue-rotate(180deg);
+}
+
+/* ---------- background around the pages ---------- */
+html.gdm-dark,
+html.gdm-dark body,
+html.gdm-dark #docs-editor-container,
+html.gdm-dark #docs-editor,
+html.gdm-dark .kix-appview-editor-container,
+html.gdm-dark .kix-appview-editor {
+  background-color: var(--gdm-bg) !important;
+}
+
+/* The header strip behind the (inverted) menu and toolbar rows. Not filtered
+   itself: a filter here would trap Docs' floating panels (find bar, pickers)
+   underneath the editor. */
+html.gdm-dark #docs-chrome {
+  background-color: #1f1f1f !important;
+}
+html.gdm-dark #docs-chrome.docs-toolbar-scrolled {
+  background-color: #24282e !important;
+}
+/* Let the strip color show through so the whole header is one shade. */
+html.gdm-dark #docs-chrome > :not(#docs-positioned-surface-container),
+html.gdm-dark #docs-chrome > :not(#docs-positioned-surface-container) > #docs-header-container {
+  background-color: transparent !important;
+}
+
+/* Page edges: subtle outline instead of a bright one. */
+html.gdm-dark .kix-page-paginated {
+  outline-color: #3c3c3c !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ---------- interface panels (inverted) ---------- */
+html.gdm-dark #docs-chrome > :not(#docs-positioned-surface-container),
+html.gdm-dark .appsElementsPositionedSurfaceContainer,
+html.gdm-dark .left-sidebar-container,
+html.gdm-dark #kix-horizontal-ruler-container,
+html.gdm-dark #kix-vertical-ruler-container,
+html.gdm-dark .kix-documentmetrics-widget,
+html.gdm-dark #docs-findbar-id,
+html.gdm-dark #docs-spellcheckslidingdialog-id,
+html.gdm-dark #docs-checkupdialog-id,
+html.gdm-dark #docs-suggestiondialog-id,
+html.gdm-dark body > .goog-menu,
+html.gdm-dark body > .goog-container,
+html.gdm-dark body > .jfk-tooltip,
+html.gdm-dark body > .modal-dialog,
+html.gdm-dark body > .docs-tiled-sidebar,
+html.gdm-dark body > .docs-bubble,
+html.gdm-dark body > .docs-calloutbubble-bubble,
+html.gdm-dark body > .appsElementsStackingSnackbarContainer,
+html.gdm-dark body > .docs-explore-widget,
+html.gdm-dark body > .docs-material-gm-dialog,
+html.gdm-dark body > [role="dialog"],
+html.gdm-dark body > [role="menu"],
+html.gdm-dark body > [role="listbox"],
+html.gdm-dark body > [role="tooltip"],
+html.gdm-dark .kix-appview-editor .docos-anchoreddocoview,
+html.gdm-dark .kix-appview-editor .docos-docoview-tesla-conflict,
+html.gdm-dark .kix-appview-editor .docs-bubble,
+html.gdm-dark .kix-appview-editor .kix-smart-summary-entrypoint-container,
+html.gdm-dark #docs-sidebar-container > *,
+html.gdm-dark .docs-companion-app-switcher-container,
+html.gdm-dark .companion-app-switcher-container {
+  filter: var(--gdm-filter) !important;
+}
+
+/* Inside an inverted panel: flip real pictures and swatches back to true color. */
+html.gdm-dark #docs-chrome > :not(#docs-positioned-surface-container) :is(img, video, picture, canvas),
+html.gdm-dark .appsElementsPositionedSurfaceContainer :is(img, video, picture, canvas),
+html.gdm-dark .left-sidebar-container :is(img, video, picture, canvas),
+html.gdm-dark body > :is(.goog-menu, .goog-container, .modal-dialog, .docs-tiled-sidebar, .docs-bubble, .docs-explore-widget, .docs-material-gm-dialog, [role="dialog"], [role="menu"]) :is(img, video, picture, canvas),
+html.gdm-dark .kix-appview-editor :is(.docos-anchoreddocoview, .docs-bubble) :is(img, video, picture, canvas),
+html.gdm-dark #docs-sidebar-container > * :is(img, video, picture, canvas),
+html.gdm-dark .docs-material-colorpalette-colorswatch-color,
+html.gdm-dark .docs-material-colorpalette-colorswatch[style*="background"],
+html.gdm-dark .docs-preview-palette-item,
+html.gdm-dark .colormenuitems-icon-color,
+html.gdm-dark .docs-icon-img-container .docs-color-swatch,
+html.gdm-dark .jfk-palette-colorswatch,
+html.gdm-dark .goog-palette-colorswatch,
+html.gdm-dark [class*="color-picker"] [style*="background-color"] {
+  filter: var(--gdm-filter) !important;
+}
+/* The account avatar etc. are background-image based; keep them true-color. */
+html.gdm-dark #docs-chrome .gb_A img,
+html.gdm-dark #docs-chrome [style*="background-image"][class*="avatar"] {
+  filter: var(--gdm-filter) !important;
+}
+
+/* ---------- editor overlays drawn as HTML ---------- */
+/* Your own text cursor is black; make it visible. Collaborator cursors keep their color. */
+html.gdm-dark .kix-cursor-caret[style*="rgb(0, 0, 0)"],
+html.gdm-dark .kix-cursor-caret[style*="#000"],
+html.gdm-dark .kix-cursor-caret:not([style*="border"]) {
+  border-color: #e3e3e3 !important;
+}
+
+/* Scrollbars */
+html.gdm-dark ::-webkit-scrollbar-track {
+  background: var(--gdm-bg);
+}
+html.gdm-dark ::-webkit-scrollbar-thumb {
+  background-color: #4a4a4a;
+  border-color: var(--gdm-bg);
+}
