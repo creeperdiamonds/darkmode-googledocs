@@ -103,10 +103,16 @@
 
   // Private canvas used to normalize CSS color strings (it is not a doc tile).
   const scratch = document.createElement('canvas').getContext('2d');
+  // Returns the browser's canonical form of a color, or null if it is not a
+  // plain color (e.g. "none", "url(#x)"). Invalid values are ignored by the
+  // canvas, so two different sentinels reveal them.
   const normalize = (v) => {
-    scratch.fillStyle = '#000000';
+    scratch.fillStyle = '#010203';
     scratch.fillStyle = v;
-    return scratch.fillStyle;
+    const a = scratch.fillStyle;
+    scratch.fillStyle = '#030201';
+    scratch.fillStyle = v;
+    return a === scratch.fillStyle ? a : null;
   };
   const RGBA_RE = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/i;
   const HEX_RE = /^#([0-9a-f]{6})$/i;
@@ -358,8 +364,72 @@
     }
   }
 
+  // ---------- SVG layers (Firefox) ----------
+  // In Firefox, Docs draws the page color, shading and images as SVG layers
+  // around the text canvas (<div class="kix-canvas-tile-content"><svg>...).
+  // Shapes get the same color mapping; <image> elements are never touched.
+  const SVG_ATTRS = ['fill', 'stroke'];
+  const SVG_SELECTOR = '.' + TILE_CLASS + ' svg [fill], .' + TILE_CLASS + ' svg [stroke]';
+  const svgMem = new WeakMap(); // element -> { fill: {orig, written}, stroke: {...} }
+
+  function recolorSvg(el) {
+    if (el.namespaceURI !== 'http://www.w3.org/2000/svg' || el.localName === 'image') return;
+    if (!el.closest('.' + TILE_CLASS) || el.closest('clipPath, mask')) return;
+    let mem = svgMem.get(el);
+    for (const a of SVG_ATTRS) {
+      const cur = el.getAttribute(a);
+      if (cur === null) continue;
+      if (!mem) svgMem.set(el, (mem = {}));
+      const m = mem[a];
+      // If the current value is the one we wrote, the original is remembered;
+      // otherwise Docs set a fresh value and that becomes the original.
+      const orig = m && cur === m.written ? m.orig : cur;
+      let want = orig;
+      if (enabled) {
+        try {
+          want = mapColor(orig);
+        } catch (e) {
+          want = orig;
+        }
+      }
+      mem[a] = { orig, written: want };
+      if (want !== cur) el.setAttribute(a, want);
+    }
+  }
+
+  function recolorSvgTree(node) {
+    if (node.nodeType !== 1) return;
+    if (node.matches('[fill], [stroke]')) recolorSvg(node);
+    node.querySelectorAll('[fill], [stroke]').forEach(recolorSvg);
+  }
+
+  function watchSvg(editor) {
+    editor.querySelectorAll(SVG_SELECTOR).forEach(recolorSvg);
+    new MutationObserver((records) => {
+      for (const r of records) {
+        if (r.type === 'attributes') recolorSvg(r.target);
+        else r.addedNodes.forEach(recolorSvgTree);
+      }
+    }).observe(editor, { subtree: true, childList: true, attributes: true, attributeFilter: SVG_ATTRS });
+  }
+
+  function findEditor() {
+    const ed = document.querySelector('.kix-appview-editor');
+    if (ed) return watchSvg(ed);
+    const mo = new MutationObserver(() => {
+      const e = document.querySelector('.kix-appview-editor');
+      if (e) {
+        mo.disconnect();
+        watchSvg(e);
+      }
+    });
+    mo.observe(document, { childList: true, subtree: true });
+  }
+  findEditor();
+
   function repaintAll() {
     document.querySelectorAll('canvas.' + TILE_CLASS).forEach(replayTile);
+    document.querySelectorAll(SVG_SELECTOR).forEach(recolorSvg);
   }
 
   // ---------- react to the on/off switch ----------

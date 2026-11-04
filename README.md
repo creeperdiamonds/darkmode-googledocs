@@ -1,6 +1,6 @@
 # Dark Mode for Google Docs
 
-A Chrome extension that gives Google Docs a real dark mode — without breaking how your document looks.
+A Chrome and Firefox extension that gives Google Docs a real dark mode — without breaking how your document looks.
 
 ![icon](icons/icon128.png)
 
@@ -13,14 +13,29 @@ A Chrome extension that gives Google Docs a real dark mode — without breaking 
 - **Dark interface** — menus, toolbar, sidebar, find bar, dialogs, rulers.
 - **Instant on/off** from the toolbar popup — no reload needed.
 
-## Install (unpacked)
+## Install
 
-1. Download this repo (`Code → Download ZIP`) and unzip it, or `git clone` it.
+Download the file for your browser from the [latest release](https://github.com/creeperdiamonds/darkmode-googledocs/releases), or build it yourself (see below).
+
+### Chrome / Edge / Brave (Chromium 111+)
+1. Unzip `darkmode-googledocs-chrome-v*.zip` (or use this repo folder directly).
 2. Open `chrome://extensions` and turn on **Developer mode** (top right).
 3. Click **Load unpacked** and choose the folder containing `manifest.json`.
-4. Open any Google Doc. Click the extension icon to turn dark mode on/off.
 
-Works in Chrome, Edge, Brave and other Chromium browsers (Chrome 111+).
+### Firefox (128+)
+Firefox only installs add-ons permanently once Mozilla has signed them. Until this one is on
+addons.mozilla.org:
+
+- **Try it now (any Firefox):** open `about:debugging#/runtime/this-firefox`, click
+  **Load Temporary Add-on…** and pick the `.xpi` file (or `dist/firefox/manifest.json`).
+  It stays installed until Firefox restarts.
+- **Keep it installed:** use Firefox Developer Edition or Nightly, set
+  `xpinstall.signatures.required` to `false` in `about:config`, then open the `.xpi` file.
+
+If the page stays light, open `about:addons` → Dark Mode for Google Docs → **Permissions**
+and make sure access to `docs.google.com` is allowed.
+
+Click the extension icon to turn dark mode on/off.
 
 ## How it works
 
@@ -38,32 +53,39 @@ draws it:
 Each tile keeps a small log of its drawing commands since its last full clear, so turning
 dark mode on/off replays the tile with the new colors immediately.
 
+In Firefox, Docs draws the page color and images as SVG layers around the text canvas;
+those SVG shapes get the same color mapping (images are skipped), and the original values
+are remembered so turning it off restores them exactly.
+
 The interface around the document is themed with CSS (`src/dark.css`).
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `manifest.json` | Manifest V3 definition |
+| `manifest.json` | Manifest V3 definition (Chrome; the Firefox manifest is generated from it) |
+| `scripts/build.js` | Builds `dist/chrome`, `dist/firefox` and their .zip / .xpi |
 | `src/canvas-patch.js` | Recolors the document canvas (page world) |
 | `src/content.js` | Reads the on/off setting and applies it to the page |
 | `src/dark.css` | Dark theme for the Docs interface |
 | `popup/` | Toolbar popup with the on/off switch |
 
-## Testing
-
-An automated test loads the extension into Chromium against a real public Google Doc and
-compares screenshots pixel by pixel:
+## Build & test
 
 ```
 npm install
-npm test                       # default sample doc
-npm test -- "<doc url>" mydoc  # any doc you can open
+npm run build          # dist/chrome, dist/firefox + .zip/.xpi packages
+npm run lint:firefox   # Mozilla's add-on linter
+npm test               # Chrome: pixel tests against a real Google Doc
+npm run test:firefox   # Firefox: same tests (installs dist/firefox as a temporary add-on)
+npm test -- "<doc url>" mydoc   # any doc you can open
 ```
 
-It checks that dark mode recolors the page, that switching it off restores the **exact**
-original rendering (0 changed pixels), that switching back on reproduces the same dark
-render, that it survives rapid toggling and scrolling, and that it causes no page errors.
+The tests load the extension against a real public Google Doc and compare screenshots
+pixel by pixel. They check that dark mode recolors the page, that switching it off
+restores the **exact** original rendering (0 changed pixels), that switching back on
+reproduces the same dark render, that it survives rapid toggling and scrolling, and that
+it causes no page errors.
 
 ## Privacy
 

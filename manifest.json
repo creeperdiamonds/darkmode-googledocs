@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Dark Mode for Google Docs",
   "short_name": "Docs Dark Mode",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Real dark mode for Google Docs. Recolors the page and text for dark backgrounds while images and your document stay untouched.",
   "minimum_chrome_version": "111",
   "icons": {

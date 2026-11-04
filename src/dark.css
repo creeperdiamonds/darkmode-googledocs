@@ -112,7 +112,10 @@ html.gdm-dark .kix-cursor-caret:not([style*="border"]) {
   border-color: #e3e3e3 !important;
 }
 
-/* Scrollbars */
+/* Scrollbars (standard property: Firefox; Chrome uses the rules below) */
+html.gdm-dark {
+  scrollbar-color: #4a4a4a var(--gdm-bg);
+}
 html.gdm-dark ::-webkit-scrollbar-track {
   background: var(--gdm-bg);
 }
